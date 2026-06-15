@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Tiếng Anh Thông Minh & Roleplay Đa Giọng</title>
+    <title>Học Tiếng Anh Thông Minh - Premium Edition</title>
     <style>
         :root {
             --primary: #4f46e5;
             --bg: #f8fafc;
             --card: #ffffff;
             --text: #1e293b;
-            --highlight-vocab: #fef08a;
-            --highlight-grammar: #bfdbfe;
+            --highlight-vocab: #e9d5ff; /* Màu tím cho từ vựng */
+            --highlight-grammar: #bfdbfe; /* Màu xanh cho ngữ pháp */
             --active-line: #e0e7ff;
             --user-line: #f0fdf4;
         }
@@ -99,8 +99,10 @@
             margin-bottom: 10px;
             border-radius: 8px;
             border-left: 4px solid #cbd5e1;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
+        .dialogue-line:hover { background-color: #f1f5f9; }
         .dialogue-line.active-bot {
             border-left-color: var(--primary);
             background-color: var(--active-line);
@@ -117,23 +119,30 @@
         }
         .speaker-tag { font-weight: bold; color: var(--primary); margin-right: 5px; }
         
-        /* Highlight hiệu ứng */
+        /* Highlight hiệu ứng màu sắc chuẩn */
         .hl-v { background-color: var(--highlight-vocab); padding: 2px 4px; border-radius: 4px; cursor: pointer; font-weight: 500; }
-        .hl-g { background-color: var(--highlight-grammar); padding: 2px 4px; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        .hl-g { background-color: var(--highlight-grammar); padding: 2px 4px; border-radius: 4px; cursor: pointer; font-weight: 500; border-bottom: 2px dashed #2563eb; }
+        .hl-g:hover { background-color: #93c5fd; }
+        .hl-v:hover { background-color: #d8b4fe; }
         
         /* Chi tiết từ vựng/ngữ pháp */
         .item-detail {
             border-bottom: 1px solid #e2e8f0;
             padding: 12px 0;
+            transition: background-color 0.5s ease;
         }
         .item-detail:last-child { border-bottom: none; }
         .audio-btn {
-            background: none;
-            border: none;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 13px;
+            padding: 2px 6px;
             margin-left: 5px;
+            transition: all 0.2s;
         }
+        .audio-btn:hover { background-color: #e2e8f0; }
         .formula {
             background: #f1f5f9;
             padding: 4px 8px;
@@ -149,51 +158,48 @@
 <body>
 
 <div class="container">
-    <h1>🎧 Trợ Lý Hội Thoại Tiếng Anh & Roleplay Đa Giọng</h1>
-    <p class="subtitle">Tự do đặt tên nhân vật, tùy chọn giọng đọc riêng biệt cho từng người đối thoại</p>
+    <h1>🎧 Trợ Lý Hội Thoại Tiếng Anh Toàn Diện</h1>
+    <p class="subtitle">Tự động hóa giọng đọc thông minh, học từ vựng tím và ngữ pháp xanh tương tác</p>
     
-    <!-- Cài đặt cấu hình -->
     <div class="config-grid">
         <div class="config-item">
             <label>Gemini API Key:</label>
             <input type="password" id="apiKey" placeholder="Dán API Key vào đây...">
         </div>
         <div class="config-item">
-            <label id="labelVoice1">Giọng Nhân Vật 1:</label>
+            <label id="labelVoice1">Giọng Nhân Vật 1 (Mặc định Nữ):</label>
             <select id="voiceSelect1"><option>Đang tải danh sách giọng...</option></select>
         </div>
         <div class="config-item" id="voice2Container" style="display: none;">
-            <label id="labelVoice2">Giọng Nhân Vật 2:</label>
+            <label id="labelVoice2">Giọng Nhân Vật 2 (Mặc định Nam):</label>
             <select id="voiceSelect2"><option>Đang tải danh sách giọng...</option></select>
         </div>
         <div class="config-item">
             <label>Chọn Vai Của Bạn:</label>
-            <select id="roleSelect">
+            <select id="roleSelect" onchange="restartOnRoleChange()">
                 <option value="none">Nghe toàn bộ (Không đóng vai)</option>
             </select>
         </div>
     </div>
 
     <div class="input-section">
-        <label for="inputText" style="font-weight: bold;">Nhập đoạn hội thoại tiếng Anh (Đặt tên tự do):</label>
-        <textarea id="inputText" placeholder="Ví dụ:&#10;John: Hello! How are you doing?&#10;Mary: I'm great. I am looking forward to meeting you.">David: Good morning! How can I help you today?
-Sophia: I am looking forward to buying a new laptop.
-David: Great! We have a few models that are on sale right now.</textarea>
-        <button class="btn" onclick="analyzeText()">Phân Tích & Bắt Đầu Học</button>
+        <label for="inputText" style="font-weight: bold;">Nhập đoạn hội thoại tiếng Anh:</label>
+        <textarea id="inputText" placeholder="Ví dụ:&#10;Anna: Hello! How are you doing?&#10;Ben: I'm great. I am looking forward to meeting you.">Anna: Good morning! How can I help you today?
+Ben: I am looking forward to buying a new laptop.
+Anna: Great! If I were you, I would check this purple model on sale right now.</textarea>
+        <button class="btn" onclick="analyzeText()">Phân Tích Hội Thoại</button>
     </div>
 
-    <div class="loading" id="loading">🔄 Đang phân tích cấu trúc bài học, vui lòng chờ...</div>
+    <div class="loading" id="loading">🔄 AI đang bóc tách hội thoại, highlight cấu trúc và chuẩn bị audio...</div>
 
     <div class="output-section" id="outputArea" style="display: none;">
-        <!-- Bên trái: Hội thoại tương tác và chức năng Roleplay -->
         <div class="panel">
-            <h3>📝 Đoạn hội thoại tương tác</h3>
+            <h3>📝 Đoạn hội thoại gốc (Bấm câu để nghe riêng lẻ)</h3>
             <div id="roleNotice" class="role-notice"></div>
             <div class="dialogue-box" id="highlightedText"></div>
             <button class="btn" id="resumeBtn" style="display:none; background-color: #10b981;" onclick="resumeRoleplay()">Tôi đã đọc xong ➡️ Tiếp tục</button>
         </div>
         
-        <!-- Bên phải: Chi tiết từ vựng & Ngữ pháp ban đầu -->
         <div class="panel">
             <h3>📚 Chi tiết Phân tích</h3>
             <div id="detailsContent"></div>
@@ -207,35 +213,31 @@ David: Great! We have a few models that are on sale right now.</textarea>
     let currentLineIndex = 0;
     let uniqueSpeakers = [];
 
-    // Tự động load danh sách các giọng đọc có trên máy người dùng
+    // Tự động quét và tối ưu giọng Nam/Nữ mặc định cho người dùng
     function loadVoices() {
         if ('speechSynthesis' in window) {
             voicesList = window.speechSynthesis.getVoices();
             const enVoices = voicesList.filter(voice => voice.lang.startsWith('en'));
             
-            updateVoiceDropdown('voiceSelect1', enVoices, 'Google US English');
-            updateVoiceDropdown('voiceSelect2', enVoices, 'Google UK English Female');
+            // Tìm giọng Nữ ưu tiên cho Voice 1, giọng Nam ưu tiên cho Voice 2
+            const femalePreferred = enVoices.find(v => v.name.toLowerCase().includes('female') || v.name.includes('Zira') || v.name.includes('Samantha')) || enVoices[0];
+            const malePreferred = enVoices.find(v => v.name.toLowerCase().includes('male') || v.name.includes('David') || v.name.includes('Google US English')) || enVoices[0];
+
+            updateVoiceDropdown('voiceSelect1', enVoices, femalePreferred ? femalePreferred.name : '');
+            updateVoiceDropdown('voiceSelect2', enVoices, malePreferred ? malePreferred.name : '');
         }
     }
 
-    function updateVoiceDropdown(selectId, enVoices, preferredVoice) {
+    function updateVoiceDropdown(selectId, enVoices, defaultVoiceName) {
         const select = document.getElementById(selectId);
         select.innerHTML = '';
-        
-        if(enVoices.length === 0) {
-            const option = document.createElement('option');
-            option.text = "Không tìm thấy giọng tiếng Anh";
-            select.appendChild(option);
-            return;
-        }
+        if(enVoices.length === 0) return;
 
         enVoices.forEach((voice) => {
             const option = document.createElement('option');
             option.value = voice.name;
             option.text = `${voice.name} (${voice.lang})`;
-            if (voice.name.includes(preferredVoice)) {
-                option.selected = true;
-            }
+            if (voice.name === defaultVoiceName) option.selected = true;
             select.appendChild(option);
         });
     }
@@ -245,15 +247,14 @@ David: Great! We have a few models that are on sale right now.</textarea>
         loadVoices();
     }
 
-    // Hàm phát âm thanh linh hoạt, hỗ trợ chọn voice cụ thể hoặc theo nhân vật
+    // Hàm phát âm phân tách đa giọng đọc
     function speak(text, callback = null, speakerName = null) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); 
             const utterance = new SpeechSynthesisUtterance(text);
             
             let selectedVoiceName = document.getElementById('voiceSelect1').value;
-            
-            // Nếu có tên người nói cụ thể, gán giọng riêng cho người thứ 2
+            // Nếu là nhân vật thứ 2 trong cuộc thoại, đổi sang cấu hình Giọng 2 (Nam)
             if (speakerName && uniqueSpeakers.length > 1 && speakerName === uniqueSpeakers[1]) {
                 selectedVoiceName = document.getElementById('voiceSelect2').value;
             }
@@ -266,7 +267,7 @@ David: Great! We have a few models that are on sale right now.</textarea>
         }
     }
 
-    // Gửi dữ liệu tới Gemini API phân tích dữ liệu gốc
+    // Phân tích dữ liệu từ Gemini API
     async function analyzeText() {
         const apiKey = document.getElementById('apiKey').value.trim();
         const text = document.getElementById('inputText').value.trim();
@@ -279,19 +280,19 @@ David: Great! We have a few models that are on sale right now.</textarea>
         document.getElementById('resumeBtn').style.display = 'none';
         window.speechSynthesis.cancel();
 
-        const prompt = `Bạn là một chuyên gia ngôn ngữ. Hãy phân tích đoạn hội thoại tiếng Anh sau đây: "${text}".
-        Hãy tự động nhận diện tên các nhân vật đối thoại (không cố định A, B). Tách đoạn hội thoại thành các câu.
-        Đồng thời tìm các từ vựng quan trọng và cấu trúc ngữ pháp có sẵn.
-        Trả về kết quả HOÀN TOÀN bằng định dạng JSON (không kèm chữ \`\`\`json ở đầu và cuối), cấu trúc chính xác như sau:
+        const prompt = `Bạn là một trợ lý ngôn ngữ xuất sắc. Hãy xử lý đoạn hội thoại sau: "${text}".
+        Nhận diện chính xác tên các nhân vật đối thoại tự do. Tách thành chuỗi các câu thoại liên tiếp.
+        Tìm các từ vựng quan trọng (gán nhãn v1, v2...) và cấu trúc ngữ pháp có sẵn (gán nhãn g1, g2...).
+        Trả về kết quả HOÀN TOÀN bằng định dạng JSON (không bọc trong tag \`\`\`json ở đầu và cuối), cấu trúc chuẩn:
         {
           "lines": [
-            {"speaker": "Tên nhân vật nhận diện được", "text": "toàn bộ text nguyên bản của dòng đó", "annotated": "Văn bản của dòng này nhưng từ vựng bọc trong <span class='hl-v' data-id='v1'>từ</span>, ngữ pháp bọc trong <span class='hl-g' data-id='g1'>cụm</span>"}
+            {"speaker": "Tên nhân vật", "text": "Câu thoại nguyên bản", "annotated": "Câu thoại bọc từ vựng vào <span class='hl-v' data-id='v1'>từ</span>, ngữ pháp vào <span class='hl-g' data-id='g1'>cụm ngữ pháp</span>"}
           ],
           "vocabulary": [
-            {"id": "v1", "word": "từ_gốc", "ipa": "phiên_âm", "type": "từ_loại", "meaning": "nghĩa_việt", "example": "ví_dụ_anh"}
+            {"id": "v1", "word": "từ_gốc", "ipa": "[phiên_âm]", "type": "từ_loại", "meaning": "nghĩa_tiếng_việt", "example": "câu_ví_dụ_tiếng_anh"}
           ],
           "grammar": [
-            {"id": "g1", "name": "tên_ngữ_pháp", "formula": "công_thức", "meaning": "giải_thích", "example": "ví_dụ_anh"}
+            {"id": "g1", "name": "tên_ngữ_pháp_tiếng_anh", "formula": "công_thức", "meaning": "giải_thích_nghĩa", "example": "câu_ví_dụ_tiếng_anh"}
           ]
         }`;
 
@@ -304,47 +305,37 @@ David: Great! We have a few models that are on sale right now.</textarea>
 
             const result = await response.json();
             let rawText = result.candidates[0].content.parts[0].text;
-            rawText = rawText.replace(/```json/g, "").replace(/
-```/g, "").trim();
+            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
             
             globalData = JSON.parse(rawText);
             
-            // Xử lý động tên các nhân vật xuất hiện trong bài
             setupSpeakersAndRoles(globalData.lines);
-            
             renderResult(globalData);
             startConversationPlayback();
 
         } catch (error) {
             console.error(error);
-            alert("Có lỗi xảy ra khi phân tích cấu trúc. Vui lòng kiểm tra lại Key hoặc định dạng văn bản.");
+            alert("Lỗi xử lý dữ liệu. Vui lòng kiểm tra lại API Key hoặc cấu trúc đoạn hội thoại.");
         } finally {
             document.getElementById('loading').style.display = 'none';
         }
     }
 
-    // Thiết lập động danh sách người nói và cập nhật giao diện cấu hình giọng
     function setupSpeakersAndRoles(lines) {
         const speakersSet = new Set();
-        lines.forEach(line => {
-            if(line.speaker) speakersSet.add(line.speaker.trim());
-        });
+        lines.forEach(line => { if(line.speaker) speakersSet.add(line.speaker.trim()); });
         uniqueSpeakers = Array.from(speakersSet);
 
-        // Cập nhật nhãn chọn giọng
-        if (uniqueSpeakers.length > 0) {
-            document.getElementById('labelVoice1').innerText = `Giọng của [ ${uniqueSpeakers[0]} ] :`;
-        }
+        if (uniqueSpeakers.length > 0) document.getElementById('labelVoice1').innerText = `Giọng của [ ${uniqueSpeakers[0]} ] (Nữ):`;
         
         const voice2Container = document.getElementById('voice2Container');
         if (uniqueSpeakers.length > 1) {
-            document.getElementById('labelVoice2').innerText = `Giọng của [ ${uniqueSpeakers[1]} ] :`;
+            document.getElementById('labelVoice2').innerText = `Giọng của [ ${uniqueSpeakers[1]} ] (Nam):`;
             voice2Container.style.display = 'flex';
         } else {
             voice2Container.style.display = 'none';
         }
 
-        // Cập nhật danh sách chọn vai đóng (Roleplay Options)
         const roleSelect = document.getElementById('roleSelect');
         roleSelect.innerHTML = '<option value="none">Nghe toàn bộ (Không đóng vai)</option>';
         uniqueSpeakers.forEach(speaker => {
@@ -355,10 +346,8 @@ David: Great! We have a few models that are on sale right now.</textarea>
         });
     }
 
-    // Hiển thị giao diện kết quả
     function renderResult(data) {
         document.getElementById('outputArea').style.display = 'grid';
-        
         const dialogueBox = document.getElementById('highlightedText');
         dialogueBox.innerHTML = '';
         
@@ -368,6 +357,7 @@ David: Great! We have a few models that are on sale right now.</textarea>
             lineDiv.id = `line-${index}`;
             lineDiv.innerHTML = `<span class="speaker-tag">${line.speaker}:</span><span>${line.annotated}</span>`;
             
+            // Bấm trực tiếp vào câu thoại bất kỳ để nghe riêng lẻ câu thoại đó
             lineDiv.addEventListener('click', (e) => {
                 if(!e.target.classList.contains('hl-v') && !e.target.classList.contains('hl-g')) {
                     speak(line.text, null, line.speaker);
@@ -376,30 +366,32 @@ David: Great! We have a few models that are on sale right now.</textarea>
             dialogueBox.appendChild(lineDiv);
         });
 
-        // Kết quả Phân tích từ vựng ban đầu
-        let htmlDetails = `<h4>⭐ TỪ VỰNG CẦN CHÚ Ý</h4>`;
+        // Đổ dữ liệu từ vựng (Highlight Tím)
+        let htmlDetails = `<h4>⭐ TỪ VỰNG TÍM NỔI BẬT</h4>`;
         data.vocabulary.forEach(v => {
             htmlDetails += `
                 <div class="item-detail" id="detail-${v.id}">
                     <strong>${v.word}</strong> <small style="color:#64748b;">(${v.type})</small> 
-                    <span style="color:#2563eb;">${v.ipa}</span>: <span>${v.meaning}</span>
+                    <span style="color:#7c3aed;">${v.ipa}</span>: <span>${v.meaning}</span>
                     <button class="audio-btn" onclick="speak('${v.word}')">🔊 Từ</button>
                     <div style="margin-top:5px; font-style: italic; color:#475569;">
-                        Ex: ${v.example} <button class="audio-btn" onclick="speak('${v.example.replace(/'/g, "\\'")}')">🔊 Câu</button>
+                        Ex: ${v.example} <button class="audio-btn" onclick="speak('${v.example.replace(/'/g, "\\'")}')">🔊 Câu ví dụ</button>
                     </div>
                 </div>
             `;
         });
 
-        // Kết quả Phân tích ngữ pháp ban đầu
-        htmlDetails += `<h4 style="margin-top:30px;">⭐ CẤU TRÚC NGỮ PHÁP</h4>`;
+        // Đổ dữ liệu ngữ pháp (Highlight Xanh)
+        htmlDetails += `<h4 style="margin-top:30px;">⭐ CẤU TRÚC NGỮ PHÁP XANH</h4>`;
         data.grammar.forEach(g => {
             htmlDetails += `
                 <div class="item-detail" id="detail-${g.id}">
-                    <strong>${g.name}</strong> - <span>${g.meaning}</span><br>
+                    <strong>${g.name}</strong> 
+                    <button class="audio-btn" onclick="speak('${g.name.replace(/'/g, "\\'")}')">🔊 Đọc tên cấu trúc</button>
+                    - <span>${g.meaning}</span><br>
                     <div class="formula">Công thức: ${g.formula}</div>
                     <div style="margin-top:5px; font-style: italic; color:#475569;">
-                        Ex: ${g.example} <button class="audio-btn" onclick="speak('${g.example.replace(/'/g, "\\'")}')">🔊 Câu</button>
+                        Ex: ${g.example} <button class="audio-btn" onclick="speak('${g.example.replace(/'/g, "\\'")}')">🔊 Câu ví dụ</button>
                     </div>
                 </div>
             `;
@@ -407,37 +399,36 @@ David: Great! We have a few models that are on sale right now.</textarea>
 
         document.getElementById('detailsContent').innerHTML = htmlDetails;
 
-        // Sự kiện click chuyển hướng xem chi tiết highlight
+        // Xử lý sự kiện tương tác bấm thẳng vào cụm highlight trong văn bản gốc
         document.querySelectorAll('.hl-v, .hl-g').forEach(element => {
             element.addEventListener('click', function(e) {
-                e.stopPropagation();
+                e.stopPropagation(); // Không kích hoạt phát âm thanh cả câu lớn
                 const id = this.getAttribute('data-id');
                 const target = document.getElementById(`detail-${id}`);
+                
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    target.style.backgroundColor = '#fef08a';
-                    setTimeout(() => target.style.backgroundColor = 'transparent', 2000);
+                    target.style.backgroundColor = '#f3e8ff';
+                    setTimeout(() => target.style.backgroundColor = 'transparent', 1500);
                     
-                    const item = data.vocabulary.find(v => v.id === id) || data.grammar.find(g => g.id === id);
-                    if(item) speak(item.word || item.example);
+                    // Phát ngay âm thanh của cụm từ/ câu chứa cụm đó
+                    speak(this.innerText);
                 }
             });
         });
     }
 
-    // Điều hướng luồng phát hội thoại / Hệ thống Roleplay thông minh
+    // Điều phối vòng lặp phát âm / Roleplay tự động phản hồi
     function startConversationPlayback() {
         currentLineIndex = 0;
         playNextLine();
     }
 
     function playNextLine() {
-        document.querySelectorAll('.dialogue-line').forEach(el => {
-            el.classList.remove('active-bot', 'active-user');
-        });
+        document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('active-bot', 'active-user'));
 
         if (currentLineIndex >= globalData.lines.length) {
-            document.getElementById('roleNotice').innerText = "🎉 Đã hoàn thành đoạn hội thoại!";
+            document.getElementById('roleNotice').innerText = "🎉 Hoàn thành đoạn hội thoại mẫu!";
             document.getElementById('resumeBtn').style.display = 'none';
             return;
         }
@@ -447,19 +438,19 @@ David: Great! We have a few models that are on sale right now.</textarea>
         const currentLineElement = document.getElementById(`line-${currentLineIndex}`);
 
         if (userRole !== 'none' && currentLine.speaker.trim() === userRole.trim()) {
-            // Đến lượt User: Dừng lại, bôi sáng màu xanh lá để nhắc bạn tự đọc
+            // Đến lượt User: Đứng chờ, bôi xanh lá nhấp nháy để nhắc người dùng đọc
             currentLineElement.classList.add('active-user');
             document.getElementById('roleNotice').innerText = `👉 Đến lượt bạn! Hãy đọc to vai của [ ${currentLine.speaker} ] trên màn hình.`;
             document.getElementById('resumeBtn').style.display = 'inline-block';
         } else {
-            // Đến lượt Máy: Tự động phát âm thanh theo đúng giọng của nhân vật đó
+            // Đến lượt Máy: Đọc tự động dựa trên giọng phân vai chuẩn
             currentLineElement.classList.add('active-bot');
-            document.getElementById('roleNotice').innerText = `🤖 Máy đang đọc vai của [ ${currentLine.speaker} ]...`;
+            document.getElementById('roleNotice').innerText = `🤖 Máy đang phản hồi vai [ ${currentLine.speaker} ]...`;
             document.getElementById('resumeBtn').style.display = 'none';
 
             speak(currentLine.text, () => {
                 currentLineIndex++;
-                setTimeout(playNextLine, 1000);
+                setTimeout(playNextLine, 1000); // Nghỉ 1s trước khi sang câu tiếp theo
             }, currentLine.speaker);
         }
     }
@@ -467,6 +458,13 @@ David: Great! We have a few models that are on sale right now.</textarea>
     function resumeRoleplay() {
         currentLineIndex++;
         playNextLine();
+    }
+
+    // Khi người dùng thay đổi vai (Role) giữa chừng, khởi động lại luồng đọc tự động
+    function restartOnRoleChange() {
+        if(globalData) {
+            startConversationPlayback();
+        }
     }
 </script>
 
