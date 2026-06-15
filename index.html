@@ -1,9 +1,22 @@
+Dưới đây là phiên bản mã nguồn đã được tối ưu hóa theo đúng yêu cầu của bạn.
+
+### Các điểm nâng cấp mới:
+
+1. **Tên nhân vật tự do:** Bạn có thể nhập bất kỳ tên nào (Ví dụ: `John: Hello`, `Mary: Hi`, `Peter: ...`), hệ thống sẽ tự động nhận diện chính xác tên người đối thoại mà không bị bó buộc vào hai chữ "A" và "B".
+2. **Cấu hình 2 giọng đọc riêng biệt:** Nếu hệ thống phát hiện đoạn hội thoại có từ 2 nhân vật trở lên, giao diện sẽ tự động hiển thị **2 hộp chọn giọng đọc độc lập** (Giọng cho Người thứ 1 và Giọng cho Người thứ 2) giúp cuộc đối thoại nghe tự nhiên như người thật đang trò chuyện.
+3. **Giữ nguyên toàn bộ tính năng cũ:** Phân tích từ vựng/ngữ pháp (Gemini API), highlight, phiên âm, từ loại, ví dụ mẫu và chế độ Đóng vai thông minh (Roleplay).
+
+---
+
+### Mã nguồn hoàn chỉnh (HTML + CSS + JS)
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Học Tiếng Anh Thông Minh & Roleplay</title>
+    <title>Học Tiếng Anh Thông Minh & Roleplay Đa Giọng</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -32,7 +45,7 @@
         /* Khung cài đặt */
         .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 15px;
             background: var(--card);
             padding: 15px;
@@ -149,39 +162,43 @@
 <body>
 
 <div class="container">
-    <h1>🎧 Trợ Lý Hội Thoại Tiếng Anh & Roleplay</h1>
-    <p class="subtitle">Phân tích từ vựng, ngữ pháp kết hợp luyện phản xạ đóng vai thông minh</p>
+    <h1>🎧 Trợ Lý Hội Thoại Tiếng Anh & Roleplay Đa Giọng</h1>
+    <p class="subtitle">Tự do đặt tên nhân vật, tùy chọn giọng đọc riêng biệt cho từng người đối thoại</p>
     
+    <!-- Cài đặt cấu hình -->
     <div class="config-grid">
         <div class="config-item">
             <label>Gemini API Key:</label>
             <input type="password" id="apiKey" placeholder="Dán API Key vào đây...">
         </div>
         <div class="config-item">
-            <label>Chọn Giọng Đọc Máy (TTS):</label>
-            <select id="voiceSelect"><option>Đang tải danh sách giọng...</option></select>
+            <label id="labelVoice1">Giọng Nhân Vật 1:</label>
+            <select id="voiceSelect1"><option>Đang tải danh sách giọng...</option></select>
+        </div>
+        <div class="config-item" id="voice2Container" style="display: none;">
+            <label id="labelVoice2">Giọng Nhân Vật 2:</label>
+            <select id="voiceSelect2"><option>Đang tải danh sách giọng...</option></select>
         </div>
         <div class="config-item">
             <label>Chọn Vai Của Bạn:</label>
             <select id="roleSelect">
                 <option value="none">Nghe toàn bộ (Không đóng vai)</option>
-                <option value="A">Tôi đóng vai A (Máy đóng vai B)</option>
-                <option value="B">Tôi đóng vai B (Máy đóng vai A)</option>
             </select>
         </div>
     </div>
 
     <div class="input-section">
-        <label for="inputText" style="font-weight: bold;">Nhập đoạn hội thoại tiếng Anh:</label>
-        <textarea id="inputText" placeholder="Ví dụ:&#10;A: Hello! How are you doing?&#10;B: I'm great. I am looking forward to meeting you.">A: Hello! How are you doing?
-B: I am great. I am looking forward to meeting you today.
-A: Awesome! Let's find a good place to talk.</textarea>
+        <label for="inputText" style="font-weight: bold;">Nhập đoạn hội thoại tiếng Anh (Đặt tên tự do):</label>
+        <textarea id="inputText" placeholder="Ví dụ:&#10;John: Hello! How are you doing?&#10;Mary: I'm great. I am looking forward to meeting you.">David: Good morning! How can I help you today?
+Sophia: I am looking forward to buying a new laptop.
+David: Great! We have a few models that are on sale right now.</textarea>
         <button class="btn" onclick="analyzeText()">Phân Tích & Bắt Đầu Học</button>
     </div>
 
     <div class="loading" id="loading">🔄 Đang phân tích cấu trúc bài học, vui lòng chờ...</div>
 
     <div class="output-section" id="outputArea" style="display: none;">
+        <!-- Bên trái: Hội thoại tương tác và chức năng Roleplay -->
         <div class="panel">
             <h3>📝 Đoạn hội thoại tương tác</h3>
             <div id="roleNotice" class="role-notice"></div>
@@ -189,6 +206,7 @@ A: Awesome! Let's find a good place to talk.</textarea>
             <button class="btn" id="resumeBtn" style="display:none; background-color: #10b981;" onclick="resumeRoleplay()">Tôi đã đọc xong ➡️ Tiếp tục</button>
         </div>
         
+        <!-- Bên phải: Chi tiết từ vựng & Ngữ pháp ban đầu -->
         <div class="panel">
             <h3>📚 Chi tiết Phân tích</h3>
             <div id="detailsContent"></div>
@@ -200,36 +218,39 @@ A: Awesome! Let's find a good place to talk.</textarea>
     let globalData = null;
     let voicesList = [];
     let currentLineIndex = 0;
-    let isRoleplayActive = false;
+    let uniqueSpeakers = [];
 
     // Tự động load danh sách các giọng đọc có trên máy người dùng
     function loadVoices() {
         if ('speechSynthesis' in window) {
             voicesList = window.speechSynthesis.getVoices();
-            const voiceSelect = document.getElementById('voiceSelect');
-            voiceSelect.innerHTML = '';
-            
-            // Lọc ra các giọng đọc tiếng Anh (en)
             const enVoices = voicesList.filter(voice => voice.lang.startsWith('en'));
             
-            if(enVoices.length === 0) {
-                const option = document.createElement('option');
-                option.text = "Không tìm thấy giọng tiếng Anh, dùng mặc định";
-                voiceSelect.appendChild(option);
-                return;
-            }
-
-            enVoices.forEach((voice) => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.text = `${voice.name} (${voice.lang})`;
-                // Ưu tiên chọn sẵn giọng chuẩn Mỹ nếu có
-                if (voice.name.includes('Google US English') || voice.name.includes('Samantha')) {
-                    option.selected = true;
-                }
-                voiceSelect.appendChild(option);
-            });
+            updateVoiceDropdown('voiceSelect1', enVoices, 'Google US English');
+            updateVoiceDropdown('voiceSelect2', enVoices, 'Google UK English Female');
         }
+    }
+
+    function updateVoiceDropdown(selectId, enVoices, preferredVoice) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = '';
+        
+        if(enVoices.length === 0) {
+            const option = document.createElement('option');
+            option.text = "Không tìm thấy giọng tiếng Anh";
+            select.appendChild(option);
+            return;
+        }
+
+        enVoices.forEach((voice) => {
+            const option = document.createElement('option');
+            option.value = voice.name;
+            option.text = `${voice.name} (${voice.lang})`;
+            if (voice.name.includes(preferredVoice)) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
     }
 
     if ('speechSynthesis' in window) {
@@ -237,21 +258,23 @@ A: Awesome! Let's find a good place to talk.</textarea>
         loadVoices();
     }
 
-    // Hàm phát âm thanh linh hoạt theo giọng đã chọn
-    function speak(text, callback = null) {
+    // Hàm phát âm thanh linh hoạt, hỗ trợ chọn voice cụ thể hoặc theo nhân vật
+    function speak(text, callback = null, speakerName = null) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); 
             const utterance = new SpeechSynthesisUtterance(text);
             
-            const selectedVoiceName = document.getElementById('voiceSelect').value;
-            const selectedVoice = voicesList.find(v => v.name === selectedVoiceName);
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
+            let selectedVoiceName = document.getElementById('voiceSelect1').value;
             
-            if (callback) {
-                utterance.onend = callback;
+            // Nếu có tên người nói cụ thể, gán giọng riêng cho người thứ 2
+            if (speakerName && uniqueSpeakers.length > 1 && speakerName === uniqueSpeakers[1]) {
+                selectedVoiceName = document.getElementById('voiceSelect2').value;
             }
+
+            const selectedVoice = voicesList.find(v => v.name === selectedVoiceName);
+            if (selectedVoice) utterance.voice = selectedVoice;
+            if (callback) utterance.onend = callback;
+            
             window.speechSynthesis.speak(utterance);
         }
     }
@@ -270,11 +293,12 @@ A: Awesome! Let's find a good place to talk.</textarea>
         window.speechSynthesis.cancel();
 
         const prompt = `Bạn là một chuyên gia ngôn ngữ. Hãy phân tích đoạn hội thoại tiếng Anh sau đây: "${text}".
-        Hãy tách đoạn hội thoại thành các câu, đồng thời tìm các từ vựng quan trọng và cấu trúc ngữ pháp.
+        Hãy tự động nhận diện tên các nhân vật đối thoại (không cố định A, B). Tách đoạn hội thoại thành các câu.
+        Đồng thời tìm các từ vựng quan trọng và cấu trúc ngữ pháp có sẵn.
         Trả về kết quả HOÀN TOÀN bằng định dạng JSON (không kèm chữ \`\`\`json ở đầu và cuối), cấu trúc chính xác như sau:
         {
           "lines": [
-            {"speaker": "A hoặc B", "text": "toàn bộ text nguyên bản của dòng đó", "annotated": "Văn bản của dòng này nhưng từ vựng bọc trong <span class='hl-v' data-id='v1'>từ</span>, ngữ pháp bọc trong <span class='hl-g' data-id='g1'>cụm</span>"}
+            {"speaker": "Tên nhân vật nhận diện được", "text": "toàn bộ text nguyên bản của dòng đó", "annotated": "Văn bản của dòng này nhưng từ vựng bọc trong <span class='hl-v' data-id='v1'>từ</span>, ngữ pháp bọc trong <span class='hl-g' data-id='g1'>cụm</span>"}
           ],
           "vocabulary": [
             {"id": "v1", "word": "từ_gốc", "ipa": "phiên_âm", "type": "từ_loại", "meaning": "nghĩa_việt", "example": "ví_dụ_anh"}
@@ -293,12 +317,15 @@ A: Awesome! Let's find a good place to talk.</textarea>
 
             const result = await response.json();
             let rawText = result.candidates[0].content.parts[0].text;
-            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+            rawText = rawText.replace(/```json/g, "").replace(/
+```/g, "").trim();
             
             globalData = JSON.parse(rawText);
-            renderResult(globalData);
             
-            // Khởi động trình đọc tự động / Roleplay
+            // Xử lý động tên các nhân vật xuất hiện trong bài
+            setupSpeakersAndRoles(globalData.lines);
+            
+            renderResult(globalData);
             startConversationPlayback();
 
         } catch (error) {
@@ -309,11 +336,42 @@ A: Awesome! Let's find a good place to talk.</textarea>
         }
     }
 
+    // Thiết lập động danh sách người nói và cập nhật giao diện cấu hình giọng
+    function setupSpeakersAndRoles(lines) {
+        const speakersSet = new Set();
+        lines.forEach(line => {
+            if(line.speaker) speakersSet.add(line.speaker.trim());
+        });
+        uniqueSpeakers = Array.from(speakersSet);
+
+        // Cập nhật nhãn chọn giọng
+        if (uniqueSpeakers.length > 0) {
+            document.getElementById('labelVoice1').innerText = `Giọng của [ ${uniqueSpeakers[0]} ] :`;
+        }
+        
+        const voice2Container = document.getElementById('voice2Container');
+        if (uniqueSpeakers.length > 1) {
+            document.getElementById('labelVoice2').innerText = `Giọng của [ ${uniqueSpeakers[1]} ] :`;
+            voice2Container.style.display = 'flex';
+        } else {
+            voice2Container.style.display = 'none';
+        }
+
+        // Cập nhật danh sách chọn vai đóng (Roleplay Options)
+        const roleSelect = document.getElementById('roleSelect');
+        roleSelect.innerHTML = '<option value="none">Nghe toàn bộ (Không đóng vai)</option>';
+        uniqueSpeakers.forEach(speaker => {
+            const opt = document.createElement('option');
+            opt.value = speaker;
+            opt.text = `Tôi đóng vai [ ${speaker} ]`;
+            roleSelect.appendChild(opt);
+        });
+    }
+
     // Hiển thị giao diện kết quả
     function renderResult(data) {
         document.getElementById('outputArea').style.display = 'grid';
         
-        // Render đoạn hội thoại chia theo dòng để chuẩn bị cho Roleplay
         const dialogueBox = document.getElementById('highlightedText');
         dialogueBox.innerHTML = '';
         
@@ -323,16 +381,15 @@ A: Awesome! Let's find a good place to talk.</textarea>
             lineDiv.id = `line-${index}`;
             lineDiv.innerHTML = `<span class="speaker-tag">${line.speaker}:</span><span>${line.annotated}</span>`;
             
-            // Cho phép người dùng click trực tiếp vào dòng thoại bất kỳ để nghe lại
             lineDiv.addEventListener('click', (e) => {
                 if(!e.target.classList.contains('hl-v') && !e.target.classList.contains('hl-g')) {
-                    speak(line.text);
+                    speak(line.text, null, line.speaker);
                 }
             });
             dialogueBox.appendChild(lineDiv);
         });
 
-        // Giữ nguyên tính năng render chi tiết từ vựng & ngữ pháp ban đầu
+        // Kết quả Phân tích từ vựng ban đầu
         let htmlDetails = `<h4>⭐ TỪ VỰNG CẦN CHÚ Ý</h4>`;
         data.vocabulary.forEach(v => {
             htmlDetails += `
@@ -347,6 +404,7 @@ A: Awesome! Let's find a good place to talk.</textarea>
             `;
         });
 
+        // Kết quả Phân tích ngữ pháp ban đầu
         htmlDetails += `<h4 style="margin-top:30px;">⭐ CẤU TRÚC NGỮ PHÁP</h4>`;
         data.grammar.forEach(g => {
             htmlDetails += `
@@ -362,10 +420,10 @@ A: Awesome! Let's find a good place to talk.</textarea>
 
         document.getElementById('detailsContent').innerHTML = htmlDetails;
 
-        // Tính năng click vào từ được highlight dịch chuyển màn hình đến khu chi tiết
+        // Sự kiện click chuyển hướng xem chi tiết highlight
         document.querySelectorAll('.hl-v, .hl-g').forEach(element => {
             element.addEventListener('click', function(e) {
-                e.stopPropagation(); // Không kích hoạt sự kiện đọc cả dòng câu
+                e.stopPropagation();
                 const id = this.getAttribute('data-id');
                 const target = document.getElementById(`detail-${id}`);
                 if (target) {
@@ -387,7 +445,6 @@ A: Awesome! Let's find a good place to talk.</textarea>
     }
 
     function playNextLine() {
-        // Xóa tất cả trạng thái highlight cũ trên các dòng
         document.querySelectorAll('.dialogue-line').forEach(el => {
             el.classList.remove('active-bot', 'active-user');
         });
@@ -402,27 +459,24 @@ A: Awesome! Let's find a good place to talk.</textarea>
         const userRole = document.getElementById('roleSelect').value;
         const currentLineElement = document.getElementById(`line-${currentLineIndex}`);
 
-        // Kiểm tra xem dòng hiện tại có phải là vai người dùng đã chọn hay không
-        if (userRole !== 'none' && currentLine.speaker.toUpperCase() === userRole.toUpperCase()) {
-            // ĐÂY LÀ VAI CỦA USER: Dừng lại, bôi sáng để nhắc nhở người dùng đọc
+        if (userRole !== 'none' && currentLine.speaker.trim() === userRole.trim()) {
+            // Đến lượt User: Dừng lại, bôi sáng màu xanh lá để nhắc bạn tự đọc
             currentLineElement.classList.add('active-user');
-            document.getElementById('roleNotice').innerText = `👉 Đến lượt bạn! Hãy đọc to vai [ ${currentLine.speaker} ] trên màn hình.`;
-            document.getElementById('resumeBtn').style.display = 'inline-block'; // Hiện nút bấm tiếp tục
+            document.getElementById('roleNotice').innerText = `👉 Đến lượt bạn! Hãy đọc to vai của [ ${currentLine.speaker} ] trên màn hình.`;
+            document.getElementById('resumeBtn').style.display = 'inline-block';
         } else {
-            // ĐÂY LÀ VAI CỦA MÁY: Máy tự động đọc và chuyển câu sau khi kết thúc
+            // Đến lượt Máy: Tự động phát âm thanh theo đúng giọng của nhân vật đó
             currentLineElement.classList.add('active-bot');
-            document.getElementById('roleNotice').innerText = `🤖 Máy đang đọc vai [ ${currentLine.speaker} ]...`;
+            document.getElementById('roleNotice').innerText = `🤖 Máy đang đọc vai của [ ${currentLine.speaker} ]...`;
             document.getElementById('resumeBtn').style.display = 'none';
 
             speak(currentLine.text, () => {
-                // Tự động chuyển sang câu tiếp theo sau 1 giây nghỉ ngơi ngắn gọn
                 currentLineIndex++;
                 setTimeout(playNextLine, 1000);
-            });
+            }, currentLine.speaker);
         }
     }
 
-    // Khi người dùng tự đọc xong vai của mình, bấm nút này để máy chạy tiếp câu sau
     function resumeRoleplay() {
         currentLineIndex++;
         playNextLine();
@@ -431,3 +485,9 @@ A: Awesome! Let's find a good place to talk.</textarea>
 
 </body>
 </html>
+
+```
+
+```
+
+```
